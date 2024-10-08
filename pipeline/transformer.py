@@ -10,7 +10,7 @@ class Transformer:
                 animal = self.transform_field_friends(animal)
                 animal = self.transform_field_born_at(animal)
         else:
-            animal = self.transform_field_friends(animal)
+            animal = self.transform_field_friends(animal_details)
             animal = self.transform_field_born_at(animal)
         return animal_details
 
@@ -22,4 +22,4 @@ class Transformer:
     def transform_field_born_at(self, animal):
         if 'born_at' in animal and animal['born_at']:
             iso_time_format = datetime.fromtimestamp(animal['born_at'] / 1000, tz=timezone.utc).isoformat()
-            animal['born_at'] = iso_time_format
+            animal['born_at'] = iso_time_format.replace("+00:00", "Z")
