@@ -29,5 +29,4 @@ The project uses the logging module to log information about the execution of th
 
 ## Running Tests
 To run tests:
-1. Run the command `pytest` to run the tests
-2. Logs stored in logs/info.log file
+- Run the command `pytest` to run the tests
