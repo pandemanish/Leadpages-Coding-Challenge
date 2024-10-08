@@ -1,35 +1,46 @@
-import os
-import requests
-from dotenv import load_dotenv
 from pipeline.logger import Logger
-from datetime import datetime, timezone
+from pipeline.extractor import Extractor
+from pipeline.client import Client
+from pipeline.loader import Loader
+from pipeline.transformer import Transformer
 
-
-load_dotenv()
-
-logger = Logger()
-
-CONFIG = {
-    "base_url": os.getenv("BASE_URL") or "http://localhost:3123/animals/v1/",
-    "batch_size": 100
-}
-
-def fetch_animals_list(page=1):
-    return requests.get(f"{CONFIG['base_url']}/animals?page={page}").json()
-
-def fetch_animal_details(self, animal_id):
-    return requests.get(f"{CONFIG['base_url']}/animals/{animal_id}").json()
-
-def transform_field_friends(animal):
-    if 'friends' in animal and isinstance(animal['friends'], str):
-        animal['friends'] = animal['friends'].split(',')
-
-def transform_field_born_at(animal):
-    if 'born_at' in animal and animal['born_at']:
-        iso_time_format = datetime.fromtimestamp(animal['born_at'] / 1000, tz=timezone.utc).isoformat()
-        animal['born_at'] = iso_time_format
 
 def main():
-    base_url = CONFIG["base_url"]
-    batch_size = CONFIG["batch_size"]
+    # Initialize the pipeline components
+    
+    logger = Logger()
+    client = Client(headers={})
+    
+    extractor = Extractor(client)
+    transformer = Transformer()
+    loader =  Loader(client)
+    
+    
+    logger.info("Starting the pipeline...")
+    page = 1
+    while True:
+        # Fetching the batch of animals
+        logger.info(f"Fetching {page} batch of animals...")
+        animals_batch = extractor.get_next_animals_batch()
+        logger.notify(f"FETCHED animals details list: {animals_batch}")
+        if not animals_batch:
+            logger.info("Processing complete. Exiting.")
+            break
+        
+       
+       # Process the batch of animals
+        logger.info(f"Processing batch of {len(animals_batch)} from batch {page} animals...")
+        animals_batch = transformer.apply_transformation(animals_batch, multiple=True)
+        logger.info(f"Finished processing batch of {len(animals_batch)} animals.")
 
+
+        # Loading the batch of animals
+        logger.info(f"Loading batch of {len(animals_batch)} from batch {page} animals...")
+        response = loader.load_animals(animals_batch)
+        logger.info(f"Finished loading batch of {len(animals_batch)} animals. Response:{response}")
+        page += 1
+    
+    logger.info("Pipeline execution completed.")
+
+if __name__ == "__main__":
+    main()
