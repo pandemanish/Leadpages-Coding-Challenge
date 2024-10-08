@@ -17,7 +17,7 @@ Python 3.6 or higher
 1. **Extractor**: This component fetches data from the given API and returns it as a list of dictionaries in batches.
 2. **Transformer**: This component processes the data fetched by the Extractor. Two transformations are applied to the data:
     a. The friend field is split into a list of friend names.
-    b. The born_at field is translated into an ISO8601 timestamp in UTC..
+    b. The born_at field is translated into an ISO8601 timestamp in UTC.
 3. **Loader**: This component posts the processed data to the given API.
 4. **Main**: This component orchestrates the pipeline.
 5. **Client**: This component is responsible for making HTTP requests to the given API. It's designed to be resilient to errors and handles them gracefully.
@@ -27,6 +27,17 @@ The `run.py` script runs the pipeline. It initializes the Extractor, Transformer
 ## Logging
 The project uses the logging module to log information about the execution of the pipeline. The logs are stored in the logs/info.log file.
 
+## Retry Mechanism
+The project uses the tenacity library to implement a retry mechanism for the Extractor and Loader component. These components are retried up to 3 times if it encounters an error.
+
 ## Running Tests
 To run tests:
 - Run the command `pytest` to run the tests
+
+## Future Improvements
+- Use asyncio for the Extractor and Loader components to make them more efficient.
+- Add more logging to provide more information about the execution of the pipeline.
+- Add more error handling to make the project more resilient to errors.
+
+## Support
+If you have any questions or issues, please open an issue on this repository. Contact: pande9970666615@gmail.com
